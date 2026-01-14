@@ -390,7 +390,7 @@ namespace TRR_SaveMaster
             }
             else if (SELECTED_TAB == TAB_TR4)
             {
-                TR4.UpdateDisplayName(selectedSavegame, fileData);
+                TR4Utilities.UpdateDisplayName(selectedSavegame, fileData);
             }
             else if (SELECTED_TAB == TAB_TR5)
             {

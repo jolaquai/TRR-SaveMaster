@@ -134,6 +134,7 @@ namespace TRR_SaveMaster
             }
         }
 
+        private int extendedOffsets;
         private void DeterminePositionOffsets(int healthOffset)
         {
             if (IsTRXSavegame())
@@ -146,11 +147,11 @@ namespace TRR_SaveMaster
             }
             else if (IsTR4Savegame() || IsTR5Savegame())
             {
-                X_COORDINATE_OFFSET = healthOffset - 0x10;
-                Y_COORDINATE_OFFSET = healthOffset - 0xE;
-                Z_COORDINATE_OFFSET = healthOffset - 0xC;
-                ORIENTATION_OFFSET = healthOffset - 0x9;
-                ROOM_OFFSET = healthOffset - 0xA;
+                X_COORDINATE_OFFSET = healthOffset - 0x10 - extendedOffsets;
+                Y_COORDINATE_OFFSET = healthOffset - 0xE - extendedOffsets;
+                Z_COORDINATE_OFFSET = healthOffset - 0xC - extendedOffsets;
+                ORIENTATION_OFFSET = healthOffset - 0x9 - extendedOffsets;
+                ROOM_OFFSET = healthOffset - 0xA - extendedOffsets;
             }
         }
 
@@ -165,6 +166,8 @@ namespace TRR_SaveMaster
 
         private int GetHealthOffset(byte[] fileData)
         {
+            extendedOffsets = 0;
+
             if (IsTR1Savegame())
             {
                 TR1.DetermineOffsets(fileData);
@@ -183,7 +186,8 @@ namespace TRR_SaveMaster
             else if (IsTR4Savegame())
             {
                 TR4.DetermineOffsets(fileData);
-                return TR4.GetHealthOffset();
+                (var offset, extendedOffsets) = TR4.GetHealthOffset();
+                return offset;
             }
             else if (IsTR5Savegame())
             {
@@ -206,7 +210,7 @@ namespace TRR_SaveMaster
             }
             else if (IsTR4Savegame())
             {
-                return TR4.IsLaraInVehicle(healthOffset, fileData);
+                return TR4Utilities.IsLaraInVehicle(healthOffset, fileData);
             }
 
             return false;
@@ -448,7 +452,7 @@ namespace TRR_SaveMaster
             }
             else if (IsTR4Savegame())
             {
-                TR4.UpdateDisplayName(selectedSavegame, fileData);
+                TR4Utilities.UpdateDisplayName(selectedSavegame, fileData);
             }
             else if (IsTR5Savegame())
             {

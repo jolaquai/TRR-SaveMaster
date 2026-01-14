@@ -334,8 +334,11 @@ namespace TRR_SaveMaster
 
         private void PromptBrowseSavegamePathTRX2()
         {
+            SetTRX2SavegamePath(@"C:\Users\user\AppData\Roaming\TRX2\76561198313591904\savegame.dat");
+            return;
+
             DialogResult result = MessageBox.Show("Tomb Raider IV-VI savegame path has not been set. Would you like to set it now?",
-                "Savegame Path", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                            "Savegame Path", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
 
             if (result == DialogResult.Yes)
             {
@@ -403,30 +406,35 @@ namespace TRR_SaveMaster
                         return;
                     }
 
-                    savegamePathTRX2 = fileBrowserDialog.FileName;
-
-                    ClearControlsTR4();
-                    ClearControlsTR5();
-                    ClearControlsTR6();
-
-                    cmbSavegamesTR4.Items.Clear();
-                    cmbSavegamesTR5.Items.Clear();
-                    cmbSavegamesTR6.Items.Clear();
-
-                    PopulateSavegamesConditionally();
-
-                    tsmiRefreshSavegameList.Enabled = true;
-
-                    EnableToolStripMenuItemsConditionally();
-
-                    tsmiCreateBackup.Enabled = true;
-                    tsmiBackupBeforeSaving.Enabled = true;
+                    SetTRX2SavegamePath(fileBrowserDialog.FileName);
 
                     this.Text = $"Tomb Raider I-VI Remastered Savegame Editor ({PlatformExtensions.ToFriendlyString(platform)})";
 
                     slblStatus.Text = $"Loaded savegame file: \"{savegamePathTRX2}\"";
                 }
             }
+        }
+
+        private void SetTRX2SavegamePath(string path)
+        {
+            savegamePathTRX2 = path;
+
+            ClearControlsTR4();
+            ClearControlsTR5();
+            ClearControlsTR6();
+
+            cmbSavegamesTR4.Items.Clear();
+            cmbSavegamesTR5.Items.Clear();
+            cmbSavegamesTR6.Items.Clear();
+
+            PopulateSavegamesConditionally();
+
+            tsmiRefreshSavegameList.Enabled = true;
+
+            EnableToolStripMenuItemsConditionally();
+
+            tsmiCreateBackup.Enabled = true;
+            tsmiBackupBeforeSaving.Enabled = true;
         }
 
         private void SetPlatform(Platform platform)
@@ -773,7 +781,7 @@ namespace TRR_SaveMaster
                 {
                     if (cmbSavegamesTR4.Items[i] is Savegame savegame)
                     {
-                        TR4.UpdateDisplayName(savegame, fileData);
+                        TR4Utilities.UpdateDisplayName(savegame, fileData);
                         cmbSavegamesTR4.Items[i] = savegame;
                     }
                 }
@@ -1288,7 +1296,7 @@ namespace TRR_SaveMaster
                         nudGrenadeGunNormalAmmoTR4, nudGrenadeGunSuperAmmoTR4, nudGrenadeGunFlashAmmoTR4, nudCrossbowNormalAmmoTR4,
                         nudCrossbowPoisonAmmoTR4, nudCrossbowExplosiveAmmoTR4, trbHealthTR4);
 
-                    TR4.UpdateDisplayName(savegame, fileData);
+                    TR4Utilities.UpdateDisplayName(savegame, fileData);
                     UpdateSavegameDisplayNameTR4(cmbSavegamesTR4, savegame);
 
                     DisableButtonsTR4();
@@ -1732,7 +1740,7 @@ namespace TRR_SaveMaster
                         return;
                     }
 
-                    TR4.UpdateDisplayName(selectedSavegame, fileData);
+                    TR4Utilities.UpdateDisplayName(selectedSavegame, fileData);
                     UpdateSavegameDisplayNameTR4(cmbSavegamesTR4, selectedSavegame);
 
                     TR4.DisplayGameInfo(fileData, nudSaveNumberTR4, nudSmallMedipacksTR4, nudLargeMedipacksTR4,
@@ -2263,7 +2271,7 @@ namespace TRR_SaveMaster
                 }
 
                 TR4.DetermineOffsets(fileData);
-                int healthOffset = TR4.GetHealthOffset();
+                var (healthOffset, extended) = TR4.GetHealthOffset();
 
                 if (healthOffset == -1)
                 {
@@ -2272,7 +2280,7 @@ namespace TRR_SaveMaster
                     return;
                 }
 
-                if (TR4.IsLaraInVehicle(healthOffset, fileData))
+                if (TR4Utilities.IsLaraInVehicle(healthOffset, fileData))
                 {
                     string warningMessage = $"Cannot edit position while Lara is in a vehicle.";
                     MessageBox.Show(warningMessage, "Cannot Edit Position", MessageBoxButtons.OK, MessageBoxIcon.Warning);
